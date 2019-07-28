@@ -1,62 +1,30 @@
-import requests
-from math import ceil
-from bs4 import BeautifulSoup as leSoup
+import os
+import urllib.request
+import shutil
+from selenium import webdriver
 
-# find source script scramble  /
-# get hash thing from scramble /
-# send get to check.php
-# 	- callback:
-# 	- f: mp3
-# 	- v: video
-#   - k: unscramble
-# 	- _:
+o = ['.oeaa.cc', 'cco', 'aea', 'oea', 'aoa', 'cee', 'coe', 'oca', 'caa', 'eae', 'oce', 'eao', 'oco', 'eoo', 'coc', 'aco', 'aae', 'coo', 'ooa', 'cao', 'aoe', 'oeo', 'ece', 'eeo', 'oac', 'eec', 'oec', 'eoe', 'eaa', 'eoa', 'ecc', 'cec', 'ceo', 'aee', 'cae', 'eoc', 'oae', 'cce', 'ooe', 'aao', 'aec', 'cca', 'oaa']
 
-# // connect to url and find script src
+url = 'https://ytmp3.cc/'
 
-data = requests.get('https://ytmp3.cc/')
-soup = leSoup(data.text, 'html.parser')
+myscript = os.getcwd() + '\\getsongs.js'
+fp = open(myscript, 'r')
 
-scripts = soup.findAll('script')
-for script in scripts:
-	if 'ytmp3.js?' in script['src']:
-		ind = script['src'].find('&')
-		k = script['src'][15:ind]
-		break
+options = webdriver.FirefoxOptions()
+options.headless = True
 
+driver = webdriver.Firefox(options=options)
+driver.get(url)
 
-# // get k value from script src
+#wait for ajax items to load
+result = driver.execute_async_script(fp.read())
+fp.close()
+sid   = result['sid']
+hashc = result['hash']
+title = result['title']
 
-def cases(c):
-	switcher = {
-		48: 57,
-		49: 56,
-		50: 55,
-		51: 54,
-		52: 53
-	}
-	return switcher.get(c, c)
+song = 'https://' + o[int(sid)] + o[0] + '/' + hashc + '/' + 'heu6q64eh6pf4moiBELtxuoqvvtZ'
+# Download the file from `url` and save it locally under `file_name`:
+with urllib.request.urlopen(song) as response, open(title+'.mp3', 'wb') as out_file:
+    shutil.copyfileobj(response, out_file)
 
-def unscramble(h):
-	ret = ""
-	for letter in h:
-		code = ord(letter)
-		if 64 < code and code < 91:
-			code = 90 if code == 65 else code-1
-		elif 96 < code and code < 123:
-			code = 97 if code == 122 else code+1
-		elif 47 < code and code < 53:
-			code = code = cases(code)
-		elif 52 < code and code < 58:
-			code = ord(str(ceil(int(letter)/2)))
-		else:
-			code = 95 if code == 45 else code
-		ret += chr(code)
-	return ret
-
-
-# // prep for request
-data = {
-	'v': 'asdf',
-	'f': 'mp3',
-	'k': unscramble(k),
-}
