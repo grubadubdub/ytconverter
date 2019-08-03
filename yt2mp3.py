@@ -28,6 +28,35 @@ driver.get(url)
 while (run):
 
 js = 'var l = [\''+ vlink +'\']'+ '''
+function p(t){
+    for(var e=0, r=0, s=""; r<t.length; r++) {
+        if(e=t.charCodeAt(r), 64<e && e<91) 
+            e = e == 65 ? 90 : e-1;
+        else if (96<e && e<123)
+            e = e == 122 ? 97 : e+1;
+        else if(47<e && e<53)
+            switch(e) {
+                case 48:
+                    e=57;
+                    break;
+                case 49:
+                    e=56;
+                    break;
+                case 50:
+                    e=55;
+                    break;
+                case 51:
+                    e=54;
+                    break;
+                case 52:
+                    e=53;
+            }
+        else 
+            52<e && e<58 ? e=Math.round(h(e.toString())/2).toString().charCodeAt(0):e==45&&(e=95);
+        s+=String.fromCharCode(e)
+    }
+    return s
+}
 
 for(var i=0, r='';i<$("script").length;i++)
     if(r=/ytmp3\.js\?[a-z]{1}\=[a-zA-Z0-9\-\_]{16,40}/.exec($("script")[i].src)) {
