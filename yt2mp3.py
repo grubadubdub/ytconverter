@@ -3,8 +3,12 @@ import urllib.request
 import shutil
 from selenium import webdriver
 
-# - navigate to page and run ajax
-# - get ajax response
+# - ask for links before inputting all in js?
+# - navigate to page
+# - get scramble from jquery for get request
+#       -- already in js
+#       -- use unscrambled scramble to run ajax
+# - get hash from response
 # - download file from response
 
 vlink = sys.argv[1][32:]
@@ -21,7 +25,30 @@ options.headless = True
 driver = webdriver.Firefox(options=options)
 driver.get(url)
 
-js = 'var l = [\'' + vlink + '\'];' + 'for (var i=0;i<l.length;i++) {$.ajax({url:"https://a.oeaa.cc/check.php", data:{v:l[i],f:\'mp3\',k:\'heu6q64eh6pf4moiBELtxuoqvvtZ\'}, dataType:"jsonp", success: arguments[0]});}'
+while (run):
+
+js = 'var l = [\''+ vlink +'\']'+ '''
+
+for(var i=0, r='';i<$("script").length;i++)
+    if(r=/ytmp3\.js\?[a-z]{1}\=[a-zA-Z0-9\-\_]{16,40}/.exec($("script")[i].src)) {
+        r=p(r.toString().slice(11));
+        break
+    }
+for (var i=0;i<l.length;i++) {
+    $.ajax({
+        url:"https://a.oeaa.cc/check.php", 
+        data: {
+            v:l,
+            f:'mp3',
+            k:r
+            }, 
+        dataType:"jsonp", 
+        success: arguments[0]
+    });
+}
+'''
+
+# print(js)
 
 # wait for ajax items to load
 try:
@@ -30,8 +57,8 @@ try:
     hashc = result['hash']
     title = result['title']
 except KeyError:
+    print('Error in fetching song')
     print(result)
-    print('ERROR')
 finally:
     driver.quit()
 
