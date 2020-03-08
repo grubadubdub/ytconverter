@@ -1,101 +1,108 @@
-import sys
-import urllib.request
-import shutil
-from selenium import webdriver
+#!/usr/bin/env python3
+# import spotifysearch
+# import requests
 
-# - ask for links before inputting all in js?
-# - navigate to page
-# - get scramble from jquery for get request
-#       -- already in js
-#       -- use unscrambled scramble to run ajax
-# - get hash from response
-# - download file from response
-
-vlink = sys.argv[1][32:]
-o = ['.oeaa.cc', 'cco', 'aea', 'oea', 'aoa', 'cee', 'coe', 'oca', 'caa', 'eae', 'oce', 'eao', 'oco', 'eoo', 'coc', 'aco', 'aae', 'coo', 'ooa', 'cao', 'aoe', 'oeo', 'ece', 'eeo', 'oac', 'eec', 'oec', 'eoe', 'eaa', 'eoa', 'ecc', 'cec', 'ceo', 'aee', 'cae', 'eoc', 'oae', 'cce', 'ooe', 'aao', 'aec', 'cca', 'oaa']
-
-url = 'https://ytmp3.cc/'
-
-# myscript = os.getcwd() + '\\getsongs.js'
-# fp = open(myscript, 'r')
-
-options = webdriver.FirefoxOptions()
-options.headless = True
-
-driver = webdriver.Firefox(options=options)
-driver.get(url)
-
-while (run):
-
-js = 'var l = [\''+ vlink +'\']'+ '''
-function p(t){
-    for(var e=0, r=0, s=""; r<t.length; r++) {
-        if(e=t.charCodeAt(r), 64<e && e<91) 
-            e = e == 65 ? 90 : e-1;
-        else if (96<e && e<123)
-            e = e == 122 ? 97 : e+1;
-        else if(47<e && e<53)
-            switch(e) {
-                case 48:
-                    e=57;
-                    break;
-                case 49:
-                    e=56;
-                    break;
-                case 50:
-                    e=55;
-                    break;
-                case 51:
-                    e=54;
-                    break;
-                case 52:
-                    e=53;
-            }
-        else 
-            52<e && e<58 ? e=Math.round(h(e.toString())/2).toString().charCodeAt(0):e==45&&(e=95);
-        s+=String.fromCharCode(e)
-    }
-    return s
-}
-
-for(var i=0, r='';i<$("script").length;i++)
-    if(r=/ytmp3\.js\?[a-z]{1}\=[a-zA-Z0-9\-\_]{16,40}/.exec($("script")[i].src)) {
-        r=p(r.toString().slice(11));
-        break
-    }
-for (var i=0;i<l.length;i++) {
-    $.ajax({
-        url:"https://a.oeaa.cc/check.php", 
-        data: {
-            v:l,
-            f:'mp3',
-            k:r
-            }, 
-        dataType:"jsonp", 
-        success: arguments[0]
-    });
-}
-'''
-
-# print(js)
-
-# wait for ajax items to load
+import os
+from pytube import YouTube as yt
+import io
+import base64
 try:
-    result = driver.execute_async_script(js)
-    sid   = result['sid']
-    hashc = result['hash']
-    title = result['title']
-except KeyError:
-    print('Error in fetching song')
-    print(result)
-finally:
-    driver.quit()
+    # Python2
+    import Tkinter as tk
+    from urllib2 import urlopen
+except ImportError:
+    # Python3
+    import tkinter as tk
+    from urllib.request import urlopen
 
-song = 'https://' + o[int(sid)] + o[0] + '/' + hashc + '/' + vlink
+HEIGHT = 600
+WIDTH = 800
 
-# download the file from `url` and save it locally under `file_name`
-# https://stackoverflow.com/questions/7243750/download-file-from-web-in-python-3
+def get_album_image(url):
+    global audio_file
+    audio_file
+    image_byt = urlopen(url).read()
+    image_b64 = base64.encodestring(image_byt)
+    photo = tk.PhotoImage(data=image_b64)
 
-with urllib.request.urlopen(song) as response, open(title+'.mp3', 'wb') as out_file:
-    shutil.copyfileobj(response, out_file)
+def download_audio(audio):
+    # TODO: handle existing file
+    try:
+        oldname = audio.default_filename
+        newname = oldname.replace("mp4", "mp3")
 
+        audio.download()
+        os.rename(oldname, newname)
+    except:
+        global audio_file
+        audio_file = get_yt_info(entry.get())
+
+        oldname = audio.default_filename
+        newname = oldname.replace("mp4", "mp3")
+
+        audio.download()
+        os.rename(oldname, newname)
+
+
+def get_yt_info(url):
+    global audio_file
+    audio_file = yt(url).streams
+
+    audio = audio_file.get_audio_only()
+    while (audio.title == "YouTube"):
+        audio = audio_file.get_audio_only()
+
+    label["text"] = audio.title
+    return audio
+
+def make_entry(main_frame):
+    url_box = tk.Entry(main_frame)
+    url_box.place(rely=0.1, relwidth=1.0, relheight=0.25)
+    return url_box
+
+def set_input_box(main_frame):
+    global audio_file
+    audio_file = None
+    input_box = tk.Frame(main_frame)
+    input_box.place(relx=0.05, rely=0.05, relwidth=0.6, relheight=0.2)
+
+    get_button = tk.Button(input_box, text="Get", command=lambda: get_yt_info(entry.get()))
+    get_button.place(rely=0.45, relwidth=0.2, relheight=0.25)
+
+
+    download_button = tk.Button(input_box, text="Download", command=lambda: download_audio(audio_file))
+    download_button.place(relx= 0.25, rely=0.45, relwidth=0.2, relheight=0.25)
+    return input_box
+
+def set_queue(main_frame):
+    in_queue = tk.Frame(main_frame)
+    in_queue.place(relx=0.05, rely=0.3, relwidth=0.6, relheight=0.65)
+    global label
+    label = tk.Label(in_queue)
+    label.pack(fill="both")
+
+def set_sidebar(main_frame):
+    song_sidebar = tk.Frame(main_frame)
+    song_sidebar.place(relx=0.67, rely=0.05, relwidth=0.28, relheight=0.9)
+
+
+
+
+root = tk.Tk()
+
+canvas = tk.Canvas(root, height=HEIGHT, width=WIDTH)
+canvas.pack()
+
+main_frame = tk.Frame(root)
+main_frame.place(anchor="c", relwidth=0.9, relheight=0.9, relx=0.5, rely=0.5)
+
+input_box = set_input_box(main_frame)
+entry = make_entry(input_box)
+
+set_queue(main_frame)
+set_sidebar(main_frame)
+
+root.mainloop()
+
+
+# # spotifysearch.search(title)
