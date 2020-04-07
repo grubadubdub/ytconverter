@@ -20,18 +20,26 @@ except ImportError:
 HEIGHT = 600
 WIDTH = 800
 
+# GLOBAL
 images = []
+song = None
+label = None
+photo_frame = None
+
+# https://www.youtube.com/watch?v=HlN2BXNJzxA
+# https://www.youtube.com/watch?v=xQJeiEvNaAo
 
 def get_album_image():
-    global song
     img = Image.open(urlopen(song.thumbnail_url))
     img = img.resize((500, 500), Image.ANTIALIAS)
     photo = ImageTk.PhotoImage(img)
 
-    photo_canvas = tk.Label(sidebar.winfo_children()[0], image=photo)
-    photo_canvas.pack(fill="both")
-
     images.append(photo)
+
+    global photo_frame
+    photo_frame.configure(image=photo)
+    photo_frame.image = photo
+
 
 def download_audio(audio):
     # TODO: handle existing file, filenames with emojis
@@ -53,11 +61,9 @@ def write_file(audio):
 
 def get_yt_info(url):
     global song
-    if song is None:
-        song = Song(url)
-        label["text"] = song.title
-        get_album_image()
-        return song
+    song = Song(url)
+    label["text"] = song.title
+    get_album_image()
 
 def make_entry(main_frame):
     url_box = tk.Entry(main_frame)
@@ -65,8 +71,6 @@ def make_entry(main_frame):
     return url_box
 
 def set_input_box(main_frame):
-    global song
-    song = None
     input_box = tk.Frame(main_frame)
     input_box.place(relx=0.05, rely=0.05, relwidth=0.6, relheight=0.2)
 
@@ -90,6 +94,10 @@ def set_sidebar(main_frame):
     song_sidebar.place(relx=0.67, rely=0.05, relwidth=0.28, relheight=0.9)
 
     photo_canvas = tk.Canvas(song_sidebar, bg="red")
+    global photo_frame
+    photo_frame = tk.Label(photo_canvas, image=None)
+    photo_frame.pack(fill="both")
+
     photo_canvas.place(relwidth=1.0, relheight=0.5)
 
     return song_sidebar
