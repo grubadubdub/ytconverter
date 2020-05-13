@@ -6,4 +6,7 @@ secrets.py
 spotifyxx.py
 spotifysearch.py
 .cache*
-__pycache__
+__pycache__/
+.*/
+.*
+.vscode/
