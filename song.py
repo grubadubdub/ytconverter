@@ -22,6 +22,8 @@ class Song:
 
         # get_thumbnail_image()
 
+    def download(self, *args, **kwargs):
+        return self.audio.download(*args, **kwargs)
 
     def get_thumbnail_image(self):
         img = Image.open(urllib.request.urlopen(self.thumbnail_url))

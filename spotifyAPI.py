@@ -106,6 +106,17 @@ class SpotifyAPI(object):
 
 		return r.json()
 
+	def search_parse_tracks(self, data):
+		tracks = data['tracks']['items']
+		images = []
+		for track in tracks:
+			album = track['album']
+			images.append(album['images'][0]['url'])
+
+		for image in images:
+			print(image)
+
 spotify = SpotifyAPI(secrets.client_id, secrets.secret)
 ret = spotify.search("exid hot pink", "track")
-print(ret)
+spotify.search_parse_tracks(ret)
+# print(ret)
