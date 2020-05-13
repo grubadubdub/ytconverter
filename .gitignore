@@ -2,3 +2,8 @@
 *.mp4
 downloaded/
 downloaded/*
+secrets.py
+spotifyxx.py
+spotifysearch.py
+.cache*
+__pycache__

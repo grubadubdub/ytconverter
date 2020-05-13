@@ -60,9 +60,10 @@ def write_file(audio):
 
 
 def get_yt_info(url):
-    global song
+    global song, label
     song = Song(url)
     label["text"] = song.title
+
     get_album_image()
 
 def make_entry(main_frame):
@@ -90,8 +91,8 @@ def set_queue(main_frame):
     return in_queue
 
 def set_sidebar(main_frame):
-    song_sidebar = tk.Frame(main_frame)
-    song_sidebar.place(relx=0.67, rely=0.05, relwidth=0.28, relheight=0.9)
+    song_sidebar = tk.Frame(main_frame, bg="green")
+    song_sidebar.place(relx=0.67, relwidth=0.28, relheight=0.9)
 
     photo_canvas = tk.Canvas(song_sidebar, bg="red")
     global photo_frame
@@ -122,3 +123,6 @@ root.mainloop()
 
 
 # # spotifysearch.search(title)
+# ca1262827006440dbd4c0371af08d13e
+# aa7da1e3afdd4f2cb416f1d730a75c64
+# user: 31jbzyaxatd7q37tat6urb5xeuve
