@@ -1,3 +1,13 @@
 *.mp3
 *.mp4
+downloaded/
 downloaded/*
+secrets.py
+spotifyxx.py
+spotifysearch.py
+.cache*
+__pycache__/
+.*/
+.*
+.vscode/
+.gitignore
