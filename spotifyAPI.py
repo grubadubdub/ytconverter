@@ -1,8 +1,8 @@
-import secrets
 import json, requests
 from urllib.parse import urlencode
 import base64
 import datetime
+# Based off CodingEntrepreneurs at https://www.youtube.com/watch?v=xdq6Gz33khQ
 
 class SpotifyAPI(object):
 
@@ -97,6 +97,7 @@ class SpotifyAPI(object):
 			"q": query,
 			"type": type
 		})
+
 		search_url = f"{self.search_url}?{data}"
 
 		r = requests.get(
@@ -106,17 +107,30 @@ class SpotifyAPI(object):
 
 		return r.json()
 
-	def search_parse_tracks(self, data):
+	def search_tracks(self, data):
 		tracks = data['tracks']['items']
-		images = []
-		for track in tracks:
-			album = track['album']
-			images.append(album['images'][0]['url'])
+		# images = []
+		# for track in tracks:
+		# 	album = track['album']
+		# 	images.append(album['images'][0]['url'])
 
-		for image in images:
-			print(image)
+		# if len(images) == 0:
+		# 	raise ModuleNotFoundError
 
-spotify = SpotifyAPI(secrets.client_id, secrets.secret)
-ret = spotify.search("exid hot pink", "track")
-spotify.search_parse_tracks(ret)
-# print(ret)
+		# ret = tracks
+
+		return tracks
+
+	def search_artists(self, data):
+		artists = data['artists']['items']
+		artists = []
+
+	def search_albums(self, data):
+		albums = data['albums']['items']
+		albums = []
+
+# debug
+# import secrets
+# spotify = SpotifyAPI(secrets.client_id, secrets.secret)
+# ret = spotify.search("exid hot pink", "track")
+# spotify.search_parse_tracks(ret)
