@@ -14,7 +14,8 @@ python client.py
 # Notes
 ### Windows 10
 - Issue with `ffmpeg` when running `pydub` solved with [GitHub Issue #604](https://github.com/jiaaro/pydub/issues/604)
-- Issue with `pydub` calling `subprocess.py` fixed on line 274
+- Also had to download ffmpeg.exe and have in PATH
+- Issue with `pydub` calling `subprocess.py` fixed on line 274, 767
 from 
 ```python
 res = Popen(command, stdin=stdin_parameter, stdout=PIPE, stderr=PIPE)
