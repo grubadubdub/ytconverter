@@ -1,6 +1,6 @@
 import os
 from pytube import YouTube as yt
-from song import Song
+from objects.song import Song
 from PIL import Image, ImageTk
 import utils.spotifyAPI
 
