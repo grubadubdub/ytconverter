@@ -2,7 +2,7 @@ import os
 from pytube import YouTube as yt
 from song import Song
 from PIL import Image, ImageTk
-import spotifyAPI
+import utils.spotifyAPI
 
 try:
     # Python2
@@ -111,7 +111,7 @@ class GUI(object):
 
     def search_spotify(self):
         # if self.song is not None:
-        spotify = spotifyAPI.SpotifyAPI(self.client_id, self.secret)
+        spotify = utils.spotifyAPI.SpotifyAPI(self.client_id, self.secret)
         term = self.meta_infos[0].get()
         try:
             ret = spotify.search(term, "track")

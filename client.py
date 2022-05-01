@@ -1,5 +1,5 @@
-import yt2mp3
-import secrets
+import objects.gui
+import utils.secrets as secrets
 
-instance = yt2mp3.GUI(secrets.client_id, secrets.secret)
+instance = objects.gui.GUI(secrets.client_id, secrets.secret)
 instance.setup()
