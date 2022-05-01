@@ -1,7 +1,7 @@
 import eyed3
 import logging
 import os
-from pytube import YouTube as yt
+import pydub
 from objects.song import Song
 from PIL import Image, ImageTk
 import utils.spotifyAPI as spotifyAPI
@@ -97,13 +97,36 @@ class GUI(object):
     def write_file(self, audio):
         song_dir = os.getcwd() + f"\downloaded\\"
         oldname = song_dir + audio.default_filename
-        newname = oldname.replace("mp4", "mp3")
+        newname = song_dir + self.meta_infos[0].get() + ".mp3"
+        logging.info(f"Renaming file from {oldname.replace(song_dir, '')} to {newname.replace(song_dir, '')}")
 
         if os.path.isfile(newname):
             self.label["text"] = "File with this name already exists!"
         else:
             audio.download(output_path=song_dir)
             os.rename(oldname, newname)
+
+        # convert MIME type to MP3 so we can use eyed3
+        logging.info("Converting to MP3")
+        mime_mp4 = pydub.AudioSegment.from_file(newname, "mp4")
+        mime_mp4.export(newname, format="mp3")
+        self.set_audio_tags(newname)
+
+    def set_audio_tags(self, song_path):
+        title, artist, album, release_date, track_no = [info.get() for info in self.meta_infos]
+        audio = eyed3.load(song_path)
+        audio.initTag()
+        audio.tag.title = title
+        audio.tag.artist = artist
+        audio.tag.album = album
+        audio.tag.track_num = track_no
+        audio.tag.save()
+        logging.info(
+            f"""Saving metadata for track:
+        Title: {title}
+        Artist: {artist}
+        Album: {album}
+        Track no.: {track_no}""")
 
     def get_yt_info(self, url):
         self.song = Song(url)
