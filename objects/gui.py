@@ -1,8 +1,13 @@
+import eyed3
+import logging
 import os
 from pytube import YouTube as yt
 from objects.song import Song
 from PIL import Image, ImageTk
-import utils.spotifyAPI
+import utils.spotifyAPI as spotifyAPI
+
+######## SETUP ########
+logging.basicConfig(level=logging.DEBUG)
 
 try:
     # Python2
@@ -15,6 +20,7 @@ except ImportError:
     from tkinter import ttk
     from urllib.request import urlopen
 
+######## GUI ########
 class GUI(object):
     # GLOBAL
     HEIGHT = 600
@@ -24,7 +30,7 @@ class GUI(object):
     label = None
     photo_frame = None
     entry = None
-    meta_infos = []
+    meta_infos = [] # current song info shown in sidebar textboxes
     root = None
     tree = None
 
@@ -79,10 +85,11 @@ class GUI(object):
 
 
     def download_audio(self, audio):
-        # TODO: handle existing file, filenames with emojis
+        # TODO: handle existing files (add counters?), filenames with emojis
         try:
             self.write_file(audio)
         except:
+            logging.info("Meta info not filled")
             audio = self.get_yt_info(self.entry.get())
             self.write_file(audio)
 
@@ -111,16 +118,21 @@ class GUI(object):
 
     def search_spotify(self):
         # if self.song is not None:
-        spotify = utils.spotifyAPI.SpotifyAPI(self.client_id, self.secret)
+        spotify = spotifyAPI.SpotifyAPI(self.client_id, self.secret)
         term = self.meta_infos[0].get()
         try:
             ret = spotify.search(term, "track")
             results = spotify.search_tracks(ret)
             self.view_results(results)
         except ModuleNotFoundError:
-            print("Track not found -- try cutting down your search terms!")
+            logging.error("Track not found -- try cutting down your search terms!")
 
     def view_results(self, results):
+        """
+        Show Spotify search results in TK
+        :results list:
+            Spotify search results 
+        """
         # https://blog.tecladocode.com/tkinter-scrollable-frames/
         popup = tk.Tk()
         container = ttk.Frame(popup)
@@ -149,6 +161,8 @@ class GUI(object):
     def build_results(self, results, main_frame):
         """
         Insert tracks found with search term into Treeview.
+        :results
+        :main_frame
         """
         tree = ttk.Treeview(main_frame, selectmode='browse')
 
@@ -161,12 +175,16 @@ class GUI(object):
         for res in results:
             artists = "".join(res["artists"][i]["name"] + ", " for i in range(len(res["artists"])))
             artists = artists[:-2]
-            tree.insert("", "end", text = res["name"],
-                                   values = (artists,
-                                             res["album"]["name"],
-                                             res["album"]["release_date"],
-                                             res["track_number"],
-                                             res["album"]["images"][0]["url"]))
+            tree.insert(
+                "", 
+                "end", 
+                text = res["name"],
+                values = (
+                        artists,
+                        res["album"]["name"],
+                        res["album"]["release_date"],
+                        res["track_number"],
+                        res["album"]["images"][0]["url"]))
 
         tree.bind('<ButtonRelease-1>', lambda event, t=tree: self.select_item(event, t))
         tree.pack(fill="both")
