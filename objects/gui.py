@@ -68,17 +68,17 @@ class GUI(object):
         """
         Change the image displayed for a track given a source.
         """
-        images = self.images
         photo_frame = self.photo_frame
 
         if type(source) is Song:
-            img = Image.open(urlopen(source.thumbnail_url))
+            img = urlopen(source.thumbnail_url)
         else:
-            img = Image.open(urlopen(source))
+            img = urlopen(source)
 
-        img = img.resize((500, 500), Image.ANTIALIAS)
+        self.images = [img]
+        img = Image.open(img)
+        img = img.resize((200, 200), Image.ANTIALIAS)
         photo = ImageTk.PhotoImage(img)
-        images.append(photo)
 
         photo_frame.configure(image=photo)
         photo_frame.image = photo
@@ -120,6 +120,12 @@ class GUI(object):
         audio.tag.artist = artist
         audio.tag.album = album
         audio.tag.track_num = track_no
+
+        # cover art, will show in iTunes 
+        img_res = urlopen(self.images[0].url)
+        img_data = img_res.read()
+        audio.tag.images.set(3, img_data, "image/jpeg", u"Cover art")
+
         audio.tag.save()
         logging.info(
             f"""Saving metadata for track:
